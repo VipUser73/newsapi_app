@@ -4,55 +4,47 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class NewsEvent {}
 
-class LoadingTopHeadlinesEvent extends NewsEvent {}
+class LoadingRefreshEvent extends NewsEvent {}
 
-class LoadingEverythingEvent extends NewsEvent {}
+class LoadingNextPageEvent extends NewsEvent {}
+
+class NextPageEvent extends NewsEvent {}
 
 abstract class NewsState {
-  final List<NewsModel> topHeadlinesList;
-  final List<NewsModel> everythingList;
-  NewsState({this.everythingList = const [], this.topHeadlinesList = const []});
+  final List<Articles> newsList;
+  NewsState({this.newsList = const []});
 }
 
 class LoadingNewsState extends NewsState {}
 
 class ErrorState extends NewsState {}
 
-class LoadedTopHeadlinesState extends NewsState {
-  LoadedTopHeadlinesState({required List<NewsModel> topHeadlinesList})
-      : super(topHeadlinesList: topHeadlinesList);
-}
-
-class LoadedEverythingState extends NewsState {
-  LoadedEverythingState({required List<NewsModel> everythingList})
-      : super(everythingList: everythingList);
+class LoadedNewsState extends NewsState {
+  LoadedNewsState({required List<Articles> newsList})
+      : super(newsList: newsList);
 }
 
 class NewsBloc extends Bloc<NewsEvent, NewsState> {
-  NewsBloc(this._localRepository) : super(LoadingNewsState()) {
-    on<LoadingTopHeadlinesEvent>(_loadTopHeadlinesEvent);
-    on<LoadingEverythingEvent>(_loadEverythingEvent);
-  }
   final LocalRepository _localRepository;
-
-  void _loadTopHeadlinesEvent(
-      LoadingTopHeadlinesEvent event, Emitter<NewsState> emit) async {
-    try {
-      await _localRepository.getTopHeadlines();
-      emit(LoadedTopHeadlinesState(
-          topHeadlinesList: _localRepository.topHeadlinesList));
-    } catch (error) {
-      emit(ErrorState());
-    }
+  final SelectTab eventTab;
+  int currentPage = 1;
+  NewsBloc(this._localRepository, this.eventTab) : super(LoadingNewsState()) {
+    on<LoadingRefreshEvent>((_, __) {
+      currentPage = 1;
+      _loadNews();
+    });
+    on<LoadingNextPageEvent>((_, __) {
+      currentPage++;
+      _loadNews();
+    });
+    _loadNews();
   }
 
-  void _loadEverythingEvent(
-      LoadingEverythingEvent event, Emitter<NewsState> emit) async {
+  Future<void> _loadNews() async {
     try {
-      await _localRepository.getEverything();
-      emit(LoadedEverythingState(
-          everythingList: _localRepository.everythingList));
-    } catch (error) {
+      final result = await _localRepository.getNews(currentPage, eventTab);
+      emit(LoadedNewsState(newsList: result));
+    } catch (e) {
       emit(ErrorState());
     }
   }

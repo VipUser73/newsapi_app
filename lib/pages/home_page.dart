@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:newsapi_app/pages/widgets/everything.dart';
-import 'package:newsapi_app/pages/widgets/top_headlines.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:newsapi_app/bloc/news_bloc.dart';
+import 'package:newsapi_app/pages/widgets/news_tabs.dart';
+import 'package:newsapi_app/repositories/local_repository.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -11,14 +13,13 @@ class HomeScreen extends StatelessWidget {
       length: 2,
       child: Scaffold(
         appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(80),
+          preferredSize: const Size.fromHeight(76),
           child: Container(
             color: Colors.green.shade700,
             child: SafeArea(
               child: Column(
-                children: [
-                  Expanded(child: Container()),
-                  const TabBar(
+                children: const [
+                  TabBar(
                     indicatorColor: Colors.black,
                     tabs: [
                       Tab(
@@ -50,10 +51,10 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: TabBarView(
+        body: const TabBarView(
           children: [
-            TopHeadlines(),
-            Everything(),
+            NewsTabs(SelectTab.topHeadlines),
+            NewsTabs(SelectTab.everything),
           ],
         ),
       ),

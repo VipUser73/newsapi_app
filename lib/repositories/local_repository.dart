@@ -1,26 +1,34 @@
-import 'dart:convert';
 import 'package:newsapi_app/models/news_model.dart';
-import 'package:flutter/services.dart';
 import 'package:newsapi_app/services/news_api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+enum SelectTab {
+  topHeadlines('top-headlines'),
+  everything('everything');
+
+  final String endpoint;
+  const SelectTab(this.endpoint);
+}
 
 class LocalRepository {
   LocalRepository(this._newsApi);
   final NewsApi _newsApi;
-  List<NewsModel> topHeadlinesList = [];
-  List<NewsModel> everythingList = [];
+  List<Articles> topHeadlinesList = [];
+  List<Articles> everythingList = [];
 
-  // Получение информации о погоде
-  Future<List<NewsModel>> getTopHeadlines() async {
-    topHeadlinesList.clear();
-    topHeadlinesList.add(await _newsApi.getTopHeadlines('top-headlines'));
-    return topHeadlinesList;
-  }
-
-  Future<List<NewsModel>> getEverything() async {
-    everythingList.clear();
-    everythingList.add(await _newsApi.getTopHeadlines('everything'));
-    return everythingList;
+  Future<List<Articles>> getNews(int page, SelectTab tab) async {
+    NewsModel newsModel = await _newsApi.getNews(page, tab.endpoint);
+    final List<Articles> currentList;
+    if (tab == SelectTab.topHeadlines) {
+      currentList = topHeadlinesList;
+    } else {
+      currentList = everythingList;
+    }
+    if (page <= 1) {
+      currentList.clear();
+    }
+    currentList.addAll(newsModel.articles);
+    return currentList;
   }
 
 // // Сохранение информации о городе в локальном хранилище

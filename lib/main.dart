@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:newsapi_app/bloc/news_bloc.dart';
 import 'package:newsapi_app/models/theme.dart';
-import 'package:newsapi_app/pages/home_screen.dart';
+import 'package:newsapi_app/pages/home_page.dart';
 import 'package:newsapi_app/repositories/local_repository.dart';
 import 'package:newsapi_app/services/news_api.dart';
 
@@ -16,12 +15,9 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return RepositoryProvider.value(
       value: _localRepository,
-      child: BlocProvider<NewsBloc>(
-        create: (context) => NewsBloc(context.read<LocalRepository>()),
-        child: MaterialApp(
-          theme: themeData,
-          home: HomeScreen(),
-        ),
+      child: MaterialApp(
+        theme: themeData,
+        home: const HomePage(),
       ),
     );
   }
